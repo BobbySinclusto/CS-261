@@ -2,8 +2,8 @@
  * This is the file in which you'll write a function to reverse a linked list.
  * Make sure to add your name and @oregonstate.edu email address below:
  *
- * Name:
- * Email:
+ * Name: Allen Benjamin
+ * Email: benjamal@oregonstate.edu
  */
 
 #include <stdio.h>
