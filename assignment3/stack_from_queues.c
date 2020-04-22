@@ -3,11 +3,13 @@
  * a stack using two queues.  Make sure to add your name and @oregonstate.edu
  * email address below:
  *
- * Name:
- * Email:
+ * Name: Allen Benjamin
+ * Email: benjamal@oregonstate.edu
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 
 #include "queue.h"
 #include "stack_from_queues.h"
@@ -17,7 +19,10 @@
  * your stack and return a pointer to the stack structure.
  */
 struct stack_from_queues* stack_from_queues_create() {
-  return NULL;
+  struct stack_from_queues *stack = malloc(sizeof(struct stack_from_queues));
+  stack->q1 = queue_create();
+  stack->q2 = queue_create();
+  return stack;
 }
 
 /*
@@ -29,7 +34,10 @@ struct stack_from_queues* stack_from_queues_create() {
  *     exit the program with an error if stack is NULL.
  */
 void stack_from_queues_free(struct stack_from_queues* stack) {
-
+  assert(stack);
+  queue_free(stack->q1);
+  queue_free(stack->q2);
+  free(stack);
 }
 
 /*
@@ -44,7 +52,8 @@ void stack_from_queues_free(struct stack_from_queues* stack) {
  *   Should return 1 if the stack is empty or 0 otherwise.
  */
 int stack_from_queues_isempty(struct stack_from_queues* stack) {
-  return 1;
+  assert(stack);
+  return queue_isempty(stack->q1) && queue_isempty(stack->q2);
 }
 
 /*
