@@ -37,6 +37,7 @@ void queue_from_stacks_free(struct queue_from_stacks* queue) {
   assert(queue);
   stack_free(queue->s1);
   stack_free(queue->s2);
+  free(queue);
 }
 
 /*
