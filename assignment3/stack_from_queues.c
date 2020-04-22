@@ -14,6 +14,9 @@
 #include "queue.h"
 #include "stack_from_queues.h"
 
+// First queue holds the most recently pushed element
+// Second queue holds all the other elements in the order they were pushed
+
 /*
  * This function should allocate and initialize all of the memory needed for
  * your stack and return a pointer to the stack structure.
@@ -65,7 +68,11 @@ int stack_from_queues_isempty(struct stack_from_queues* stack) {
  *   value - the new value to be pushed onto the stack
  */
 void stack_from_queues_push(struct stack_from_queues* stack, int value) {
-
+  assert(stack);
+  if (!queue_isempty(stack->q1)) {
+    queue_enqueue(stack->q2, queue_dequeue(stack->q1));
+  }
+  queue_enqueue(stack->q1, value);
 }
 
 /*
@@ -81,7 +88,8 @@ void stack_from_queues_push(struct stack_from_queues* stack, int value) {
  *   Should return the value stored at the top of the stack.
  */
 int stack_from_queues_top(struct stack_from_queues* stack) {
-  return 0;
+  assert(!stack_from_queues_isempty(stack));
+  return queue_front(stack->q1);
 }
 
 /*
@@ -97,5 +105,20 @@ int stack_from_queues_top(struct stack_from_queues* stack) {
  *   is popped.
  */
 int stack_from_queues_pop(struct stack_from_queues* stack) {
-  return 0;
+  assert(!stack_from_queues_isempty(stack));
+  int top = queue_dequeue(stack->q1);
+  if (!queue_isempty(stack->q2)) {
+    while (1) {
+      int new_thing = queue_dequeue(stack->q2);
+      if (queue_isempty(stack->q2)) {
+        queue_enqueue(stack->q2, new_thing);
+        break;
+      }
+      queue_enqueue(stack->q1, new_thing);
+    }
+    struct queue *tmp = stack->q1;
+    stack->q1 = stack->q2;
+    stack->q2 = tmp;
+  }
+  return top;
 }
