@@ -106,8 +106,12 @@ int queue_from_stacks_front(struct queue_from_stacks* queue) {
 int queue_from_stacks_dequeue(struct queue_from_stacks* queue) {
   assert(!queue_from_stacks_isempty(queue));
   if (stack_isempty(queue->s2)) {
-    while (!stack_isempty(queue->s1)) {
-      stack_push(queue->s2, stack_pop(queue->s1));
+    while (1) {
+      int tmp = stack_pop(queue->s1);
+      if (stack_isempty(queue->s1)) {
+        return tmp;
+      }
+      stack_push(queue->s2, tmp);
     }
   }
   return stack_pop(queue->s2);
