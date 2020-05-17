@@ -312,8 +312,20 @@ int bst_contains(int val, struct bst* bst) {
  * This is the structure you will use to create an in-order BST iterator.  It
  * is up to you how to define this structure.
  */
-struct bst_iterator;
+struct bst_iterator {
+  struct bst_node *n;
+  int depth;
+};
 
+int _bst_subtree_size(struct bst_node *n) {
+  if (n == NULL) {
+    return 0;
+  }
+  if (n->left == NULL && n->right == NULL) {
+    return 1;
+  }
+  return bst_subtree_size(n->left) + bst_subtree_size(n->right);
+ }
 
 /*
  * This function should return the total number of elements stored in a given
@@ -326,7 +338,7 @@ struct bst_iterator;
  *   Should return the total number of elements stored in bst.
  */
 int bst_size(struct bst* bst) {
-  return 0;
+  return _bst_subtree_size(bst->root);
 }
 
 
