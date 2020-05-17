@@ -371,6 +371,10 @@ int bst_height(struct bst* bst) {
   return _bst_subtree_height(bst->root);
 }
 
+/*
+ * Helper function to determine whether a given subtree contains a path from the
+ * root to a leaf in which the node values sum to a specified value
+ */
 int _bst_subtree_path_sum(int sum, struct bst_node *n) {
   if (n == NULL) {
     return 0;
