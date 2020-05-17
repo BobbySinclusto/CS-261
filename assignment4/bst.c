@@ -371,6 +371,19 @@ int bst_height(struct bst* bst) {
   return _bst_subtree_height(bst->root);
 }
 
+int _bst_subtree_path_sum(int sum, struct bst_node *n) {
+  if (n == NULL) {
+    return 0;
+  }
+  sum -= n->val; // Decrement sum by value of current node
+  if (sum < 0) {
+    return 0;    // If we go over the value of sum, we don't need to keep going down this branch
+  }
+  if (n->left == NULL && n->right == NULL) {
+    return sum == 0;    // If this is a leaf node and the value was equal to sum, the path exists.
+  }
+  return _bst_subtree_path_sum(sum, n->left) || _bst_subtree_path_sum(sum, n->right); // If either of the subtrees contain a path to sum, then the path exists.
+}
 
 /*
  * This function should determine whether a given BST contains a path from the
@@ -385,7 +398,10 @@ int bst_height(struct bst* bst) {
  *   the values of the nodes add up to sum.  Should return 0 otherwise.
  */
 int bst_path_sum(int sum, struct bst* bst) {
-  return 0;
+  if (bst == NULL || bst->root == NULL) {
+    return 0; // If the tree is empty, no paths are possible
+  }
+  return _bst_subtree_path_sum(sum, bst->root);
 }
 
 
