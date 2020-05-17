@@ -4,8 +4,8 @@
  * functions for this assignment.  Make sure to add your name and
  * @oregonstate.edu email address below:
  *
- * Name:
- * Email:
+ * Name: Allen Benjamin
+ * Email: benjamal@oregonstate.edu
  */
 
 #include <stdio.h>
@@ -13,6 +13,7 @@
 #include <assert.h>
 
 #include "bst.h"
+#include "stack.h"
 
 /*
  * This structure represents a single node in a BST.
@@ -313,19 +314,19 @@ int bst_contains(int val, struct bst* bst) {
  * is up to you how to define this structure.
  */
 struct bst_iterator {
-  struct bst_node *n;
-  int depth;
+  struct stack *s; // Stores pointers to each node, in order
 };
 
+/*
+ * Helper function to calculate size of a subtree given its root node
+ */
+
 int _bst_subtree_size(struct bst_node *n) {
-  if (n == NULL) {
+  if (n == NULL) { // If current node is NULL, it doesn't count
     return 0;
   }
-  if (n->left == NULL && n->right == NULL) {
-    return 1;
-  }
-  return bst_subtree_size(n->left) + bst_subtree_size(n->right);
- }
+  return 1 + _bst_subtree_size(n->left) + _bst_subtree_size(n->right); // Count current node as well as it's descendants
+}
 
 /*
  * This function should return the total number of elements stored in a given
@@ -377,6 +378,17 @@ int bst_path_sum(int sum, struct bst* bst) {
 
 
 /*
+ * Helper function for reverse-order traversal
+ */
+void _bst_iterator_fill(struct bst_node *n, struct bst_iterator *it) {
+  if (n != NULL){
+    _bst_iterator_fill(n->right, it); // Right subtree first
+    stack_push(it->s, n);             // Add current node to stack
+    _bst_iterator_fill(n->left, it);  // Left subtree
+  }
+}
+
+/*
  * This function should allocate and initialize a new in-order BST iterator
  * given a specific BST over which to iterate.
  *
@@ -389,7 +401,14 @@ int bst_path_sum(int sum, struct bst* bst) {
  *   value in bst (i.e. the leftmost value in the tree).
  */
 struct bst_iterator* bst_iterator_create(struct bst* bst) {
-  return NULL;
+  assert(bst);
+  // Allocate memory for iterator
+  struct bst_iterator *it = (struct bst_iterator*)malloc(sizeof(struct bst_iterator));
+  // Allocate memory for stack
+  it->s = stack_create();
+  // Push elements to stack in reverse order
+  _bst_iterator_fill(bst->root, it);
+  return it;
 }
 
 /*
@@ -399,9 +418,10 @@ struct bst_iterator* bst_iterator_create(struct bst* bst) {
  *   iter - the iterator whose memory is to be freed.  May not be NULL.
  */
 void bst_iterator_free(struct bst_iterator* iter) {
-
+  assert(iter);
+  stack_free(iter->s);
+  free(iter);
 }
-
 
 /*
  * This function should return 1 if there is at least one more node to visit
@@ -412,7 +432,7 @@ void bst_iterator_free(struct bst_iterator* iter) {
  *   iter - the iterator to be checked for more values.  May not be NULL.
  */
 int bst_iterator_has_next(struct bst_iterator* iter) {
-  return 0;
+  return !stack_isempty(iter->s);
 }
 
 
@@ -425,5 +445,7 @@ int bst_iterator_has_next(struct bst_iterator* iter) {
  *     and must have at least one more value to be returned.
  */
 int bst_iterator_next(struct bst_iterator* iter) {
-  return 0;
+  assert(bst_iterator_has_next(iter));
+  // Pop the top element from the stack, should be in order
+  return ((struct bst_node*)stack_pop(iter->s))->val;
 }
