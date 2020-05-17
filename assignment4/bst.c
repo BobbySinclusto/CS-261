@@ -342,6 +342,18 @@ int bst_size(struct bst* bst) {
   return _bst_subtree_size(bst->root);
 }
 
+/*
+ * Helper function to calculate height of a node
+ */
+int _bst_subtree_height(struct bst_node *n) {
+  if (n == NULL) {
+    return -1;                            // Height of empty tree is -1
+  }
+  int lh = _bst_subtree_height(n->left);  // Height of left subtree
+  int rh = _bst_subtree_height(n->right); // Height of right subtree
+  return lh > rh ? lh + 1 : rh + 1;       // Return whichever one is greater, +1 for current node
+}
+
 
 /*
  * This function should return the height of a given BST, which is the maximum
@@ -356,7 +368,7 @@ int bst_size(struct bst* bst) {
  *   Should return the height of bst.
  */
 int bst_height(struct bst* bst) {
-  return 0;
+  return _bst_subtree_height(bst->root);
 }
 
 
