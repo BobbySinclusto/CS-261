@@ -445,7 +445,7 @@ struct bst_iterator* bst_iterator_create(struct bst* bst) {
  */
 void bst_iterator_free(struct bst_iterator* iter) {
   assert(iter);
-  stack_free(iter->s);
+  stack_free(iter->s); // Free stack first, then iterator
   free(iter);
 }
 
