@@ -459,7 +459,7 @@ void bst_iterator_free(struct bst_iterator* iter) {
  */
 int bst_iterator_has_next(struct bst_iterator* iter) {
   assert(iter);
-  return !stack_isempty(iter->s);
+  return !stack_isempty(iter->s); // If the stack is empty there's nowhere to go next
 }
 
 
