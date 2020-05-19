@@ -314,7 +314,7 @@ int bst_contains(int val, struct bst* bst) {
  * is up to you how to define this structure.
  */
 struct bst_iterator {
-  struct stack *s; // Stores pointers to each node, in order
+  struct stack *s; // Stores the 'call stack'
 };
 
 /*
@@ -408,18 +408,6 @@ int bst_path_sum(int sum, struct bst* bst) {
   return _bst_subtree_path_sum(sum, bst->root);
 }
 
-
-/*
- * Helper function for reverse-order traversal
- */
-void _bst_iterator_fill(struct bst_node *n, struct bst_iterator *it) {
-  if (n != NULL){
-    _bst_iterator_fill(n->right, it); // Right subtree first
-    stack_push(it->s, n);             // Add current node to stack
-    _bst_iterator_fill(n->left, it);  // Left subtree
-  }
-}
-
 /*
  * This function should allocate and initialize a new in-order BST iterator
  * given a specific BST over which to iterate.
@@ -435,12 +423,18 @@ void _bst_iterator_fill(struct bst_node *n, struct bst_iterator *it) {
 struct bst_iterator* bst_iterator_create(struct bst* bst) {
   assert(bst);
   // Allocate memory for iterator
-  struct bst_iterator *it = (struct bst_iterator*)malloc(sizeof(struct bst_iterator));
+  struct bst_iterator *iter = (struct bst_iterator*)malloc(sizeof(struct bst_iterator));
   // Allocate memory for stack
-  it->s = stack_create();
-  // Push elements to stack in reverse order
-  _bst_iterator_fill(bst->root, it);
-  return it;
+  iter->s = stack_create();
+  // If bst is empty, don't need to set anything else up
+  if (bst->root != NULL) {
+    struct bst_node *current = bst->root;
+    while (current != NULL) { // Find leftmost node, push nodes visited along the way to the stack
+        stack_push(iter->s, current);
+        current = current->left;
+    }
+  }
+  return iter;
 }
 
 /*
@@ -464,6 +458,7 @@ void bst_iterator_free(struct bst_iterator* iter) {
  *   iter - the iterator to be checked for more values.  May not be NULL.
  */
 int bst_iterator_has_next(struct bst_iterator* iter) {
+  assert(iter);
   return !stack_isempty(iter->s);
 }
 
@@ -478,6 +473,16 @@ int bst_iterator_has_next(struct bst_iterator* iter) {
  */
 int bst_iterator_next(struct bst_iterator* iter) {
   assert(bst_iterator_has_next(iter));
-  // Pop the top element from the stack, should be in order
-  return ((struct bst_node*)stack_pop(iter->s))->val;
+  struct bst_node *current = (struct bst_node*)stack_pop(iter->s); // This node should have the next value in the in-order iteration
+  int res = current->val;           // Store it for returning later
+  if (current->right != NULL) {     // Check if the node has a right subtree
+    current = current->right;       
+    stack_push(iter->s, current);   // push node so that we can go back to it later
+    while (current->left != NULL) { // Find the leftmost descendant
+      current = current->left;
+      stack_push(iter->s, current); // push node so that we can go back to it later
+    }
+  }
+  
+  return res;
 }
