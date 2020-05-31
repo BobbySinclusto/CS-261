@@ -11,6 +11,12 @@
 #include <stdlib.h>
 
 #include "pq.h"
+#include "dynarray.h"
+
+struct pq_element {
+  void *data;
+  int p;
+};
 
 /*
  * This is the structure that represents a priority queue.  You must define
@@ -18,7 +24,9 @@
  * in addition, you want to define an element struct with both data and priority, 
  * corresponding to the elements of the priority queue. 
  */
-struct pq;
+struct pq {
+  struct dynarray *arr;
+};
 
 
 /*
@@ -26,7 +34,9 @@ struct pq;
  * return a pointer to it.
  */
 struct pq* pq_create() {
-  return NULL;
+  struct pq *tmp = (struct pq*)malloc(sizeof(struct pq));
+  tmp->arr = dynarray_create();
+  return tmp;
 }
 
 
@@ -39,7 +49,9 @@ struct pq* pq_create() {
  *   pq - the priority queue to be destroyed.  May not be NULL.
  */
 void pq_free(struct pq* pq) {
-
+  assert(pq);
+  dynarray_free(pq->arr);
+  free(pq);
 }
 
 
@@ -55,7 +67,8 @@ void pq_free(struct pq* pq) {
  *   Should return 1 if pq is empty and 0 otherwise.
  */
 int pq_isempty(struct pq* pq) {
-  return 1;
+  assert(pq);
+  return !dynarray_length(pq->arr);
 }
 
 
