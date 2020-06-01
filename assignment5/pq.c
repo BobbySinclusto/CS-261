@@ -9,13 +9,14 @@
  */
 
 #include <stdlib.h>
+#include <assert.h>
 
 #include "pq.h"
 #include "dynarray.h"
 
 struct pq_element {
   void *data;
-  int p;
+  int priority;
 };
 
 /*
@@ -73,6 +74,30 @@ int pq_isempty(struct pq* pq) {
 
 
 /*
+ * Helper function to swap elements in a priority queue
+ */
+void swap(struct pq *pq, int index, int parent) {
+  struct pq_element* tmp = (struct pq_element*)dynarray_get(pq->arr, index);
+  dynarray_set(pq->arr, index, dynarray_get(pq->arr, parent));
+  dynarray_set(pq->arr, parent, tmp);
+}
+
+/*
+ * Helper function to percolate an element up the heap.
+ */
+
+void percolate_up(struct pq *pq, int index) {
+  while((index-1)/2 != 0) {
+    int parent = (index-1)/2;
+    if (((struct pq_element*)dynarray_get(pq->arr, index))->priority < ((struct pq_element*)dynarray_get(pq->arr, parent))->priority) {
+      break;
+    }
+    swap(pq, index, parent);
+    index = parent;
+  }
+}
+
+/*
  * This function should insert a given element into a priority queue with a
  * specified priority value.  Note that in this implementation, higher priority
  * values are given precedent, and higher place in the queue.  In other words, the
@@ -90,7 +115,12 @@ int pq_isempty(struct pq* pq) {
  *     be the FIRST one returned.
  */
 void pq_insert(struct pq* pq, void* data, int priority) {
-
+  assert(pq);
+  struct pq_element *new = (struct pq_element*)malloc(sizeof(struct pq_element));
+  new->data = data;
+  new->priority = priority;
+  dynarray_insert(pq->arr, -1, new);
+  percolate_up(pq, dynarray_length(pq->arr) - 1);
 }
 
 
@@ -107,7 +137,8 @@ void pq_insert(struct pq* pq, void* data, int priority) {
  *   max priority value.
  */
 void* pq_max(struct pq* pq) {
-  return NULL;
+  assert(!pq_isempty(pq));
+  return ((struct pq_element*)dynarray_get(pq->arr, 0))->data;
 }
 
 
@@ -124,7 +155,8 @@ void* pq_max(struct pq* pq) {
  *   with highest priority value.
  */
 int pq_max_priority(struct pq* pq) {
-  return 0;
+  assert(!pq_isempty(pq));
+  return ((struct pq_element*)dynarray_get(pq->arr, 0))->priority;
 }
 
 
