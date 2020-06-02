@@ -87,8 +87,9 @@ void swap(struct pq *pq, int first, int second) {
  */
 
 void percolate_up(struct pq *pq, int index) {
-  while(index != 0) {
-    int parent = (index-1)/2;
+  while(index != 0) { // if the current node is the root node, we can't percolate up any further
+    int parent = (index-1)/2; // calculate index of parent node
+    // if the priority of current node is less than priority of parent node, we don't need to percolate up any further
     if (((struct pq_element*)dynarray_get(pq->arr, index))->priority < ((struct pq_element*)dynarray_get(pq->arr, parent))->priority) {
       break;
     }
@@ -116,11 +117,11 @@ void percolate_up(struct pq *pq, int index) {
  */
 void pq_insert(struct pq* pq, void* data, int priority) {
   assert(pq);
-  struct pq_element *new = (struct pq_element*)malloc(sizeof(struct pq_element));
+  struct pq_element *new = (struct pq_element*)malloc(sizeof(struct pq_element)); // Allocate memory for new node
   new->data = data;
   new->priority = priority;
-  dynarray_insert(pq->arr, -1, new);
-  percolate_up(pq, dynarray_length(pq->arr) - 1);
+  dynarray_insert(pq->arr, -1, new); // append the new node to the end of the array
+  percolate_up(pq, dynarray_length(pq->arr) - 1); // percolate the new node up the heap
 }
 
 
@@ -138,7 +139,7 @@ void pq_insert(struct pq* pq, void* data, int priority) {
  */
 void* pq_max(struct pq* pq) {
   assert(!pq_isempty(pq));
-  return ((struct pq_element*)dynarray_get(pq->arr, 0))->data;
+  return ((struct pq_element*)dynarray_get(pq->arr, 0))->data; // max is the root node
 }
 
 
@@ -161,11 +162,14 @@ int pq_max_priority(struct pq* pq) {
 
 void percolate_down(struct pq* pq, int index) {
   while((index+1)*2-1 < dynarray_length(pq->arr)) {
-    int left = (index+1)*2-1;
+    int left = (index+1)*2-1; // calculate index of left child node
     int right = ((index+1)*2 < dynarray_length(pq->arr)) ? (index+1)*2 : left; // Catch edge case where only a left child node exists
+    
+    // If the priority of the current node is less than its left or right child
     if (((struct pq_element*)dynarray_get(pq->arr, index))->priority < ((struct pq_element*)dynarray_get(pq->arr, left))->priority || 
         ((struct pq_element*)dynarray_get(pq->arr, index))->priority < ((struct pq_element*)dynarray_get(pq->arr, right))->priority) 
     {
+      // Find the child node with the greatest priority and swap
       if (((struct pq_element*)dynarray_get(pq->arr, left))->priority > ((struct pq_element*)dynarray_get(pq->arr, right))->priority) {
         swap(pq, index, left);
         index = left;
@@ -196,10 +200,10 @@ void percolate_down(struct pq* pq, int index) {
  */
 void* pq_max_dequeue(struct pq* pq) {
   assert(!pq_isempty(pq));
-  void *tmp = pq_max(pq);
-  free((struct pq_element*)dynarray_get(pq->arr, 0));
-  dynarray_set(pq->arr, 0, dynarray_get(pq->arr, -1));
-  dynarray_remove(pq->arr, -1);
-  percolate_down(pq, 0);
+  void *tmp = pq_max(pq); // Data that will be returned
+  free((struct pq_element*)dynarray_get(pq->arr, 0)); // free memory allocated to previous root node
+  dynarray_set(pq->arr, 0, dynarray_get(pq->arr, -1)); // replace root with last node in heap
+  dynarray_remove(pq->arr, -1); // remove the old last node
+  percolate_down(pq, 0); // percolate the node down the heap to restore heap property
   return tmp;
 }
