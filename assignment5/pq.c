@@ -76,10 +76,10 @@ int pq_isempty(struct pq* pq) {
 /*
  * Helper function to swap elements in a priority queue
  */
-void swap(struct pq *pq, int index, int parent) {
-  struct pq_element* tmp = (struct pq_element*)dynarray_get(pq->arr, index);
-  dynarray_set(pq->arr, index, dynarray_get(pq->arr, parent));
-  dynarray_set(pq->arr, parent, tmp);
+void swap(struct pq *pq, int first, int second) {
+  struct pq_element* tmp = (struct pq_element*)dynarray_get(pq->arr, first);
+  dynarray_set(pq->arr, first, dynarray_get(pq->arr, second));
+  dynarray_set(pq->arr, second, tmp);
 }
 
 /*
@@ -87,7 +87,7 @@ void swap(struct pq *pq, int index, int parent) {
  */
 
 void percolate_up(struct pq *pq, int index) {
-  while((index-1)/2 != 0) {
+  while(index != 0) {
     int parent = (index-1)/2;
     if (((struct pq_element*)dynarray_get(pq->arr, index))->priority < ((struct pq_element*)dynarray_get(pq->arr, parent))->priority) {
       break;
@@ -159,6 +159,27 @@ int pq_max_priority(struct pq* pq) {
   return ((struct pq_element*)dynarray_get(pq->arr, 0))->priority;
 }
 
+void percolate_down(struct pq* pq, int index) {
+  while((index+1)*2-1 < dynarray_length(pq->arr)) {
+    int left = (index+1)*2-1;
+    int right = ((index+1)*2 < dynarray_length(pq->arr)) ? (index+1)*2 : left; // Catch edge case where only a left child node exists
+    if (((struct pq_element*)dynarray_get(pq->arr, index))->priority < ((struct pq_element*)dynarray_get(pq->arr, left))->priority || 
+        ((struct pq_element*)dynarray_get(pq->arr, index))->priority < ((struct pq_element*)dynarray_get(pq->arr, right))->priority) 
+    {
+      if (((struct pq_element*)dynarray_get(pq->arr, left))->priority > ((struct pq_element*)dynarray_get(pq->arr, right))->priority) {
+        swap(pq, index, left);
+        index = left;
+      }
+      else {
+        swap(pq, index, right);
+        index = right;
+      }
+    }
+    else {
+      break;
+    }
+  }
+}
 
 /*
  * This function should return the value of the first item in a priority
@@ -174,5 +195,11 @@ int pq_max_priority(struct pq* pq) {
  *   highest priority value.
  */
 void* pq_max_dequeue(struct pq* pq) {
-  return NULL;
+  assert(!pq_isempty(pq));
+  void *tmp = pq_max(pq);
+  free((struct pq_element*)dynarray_get(pq->arr, 0));
+  dynarray_set(pq->arr, 0, dynarray_get(pq->arr, -1));
+  dynarray_remove(pq->arr, -1);
+  percolate_down(pq, 0);
+  return tmp;
 }
