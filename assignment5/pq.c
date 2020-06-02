@@ -14,6 +14,9 @@
 #include "pq.h"
 #include "dynarray.h"
 
+/*
+ * struct that stores information for an element of the priority queue
+ */
 struct pq_element {
   void *data;
   int priority;
