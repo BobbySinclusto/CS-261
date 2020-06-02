@@ -162,7 +162,6 @@ int pq_max_priority(struct pq* pq) {
 /*
  * Helper function to percolate nodes down the heap
  */
-
 void percolate_down(struct pq* pq, int index) {
   while((index+1)*2-1 < dynarray_length(pq->arr)) {
     int left = (index+1)*2-1; // calculate index of left child node
