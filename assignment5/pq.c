@@ -85,7 +85,6 @@ void swap(struct pq *pq, int first, int second) {
 /*
  * Helper function to percolate an element up the heap.
  */
-
 void percolate_up(struct pq *pq, int index) {
   while(index != 0) { // if the current node is the root node, we can't percolate up any further
     int parent = (index-1)/2; // calculate index of parent node
